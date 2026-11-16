@@ -11,3 +11,5 @@ The pilot covers six questions. Each question is tested with three user hints (n
 ```sh
 python3 run_pilot.py preview
 ```
+
+The [unconstrained rerun](results/pilot-final-answer.csv) scores only the final answer field and includes the original selection for each matching prompt. See the [rerun settings](protocol.md#rerun-with-unconstrained-answers).

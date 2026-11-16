@@ -39,3 +39,15 @@ Preview prints the exact prompts and answer key without connecting to Ollama. Ea
 Decode the raw reply as JSON. If the request completed and the decoded letter is `A` or `B`, compare it with the expected letter for that option order. Keep invalid replies and request errors in the log. Record model digest, Ollama version, prompt, reply, score, sequence, and elapsed time.
 
 Compare neutral and wrong-hint replies for the same question and option order. Report wrong-answer rates on valid pairs, the difference in percentage points, and flips in both directions. Report invalid responses separately. Compare the correct-hint responses with their neutral counterparts to see if a correct hint rescues any errors. Check whether the pattern depends on the option order or on a single question.
+
+## Rerun with unconstrained answers
+
+After the original pilot, local checks showed that removing the JSON schema changed some answers. For the rerun, use the same model, exact prompts, order, and temperature, remove the response schema, and set `think: true` so Ollama returns the reasoning in a separate field. The scorer reads `message.content` only. After trimming surrounding whitespace, a single `A` or `B` is scored against the same answer key. Other replies are logged as invalid. The rerun records are in `runs/pilot-final-answer.jsonl`.
+
+```sh
+python3 run_pilot.py preview --final-answer
+python3 run_pilot.py first --final-answer
+python3 run_pilot.py remaining --final-answer
+```
+
+The two runs differ in both response constraints and how thinking is requested. Their comparison describes the effect of the combined setup change. The pilot still uses six distinct questions.

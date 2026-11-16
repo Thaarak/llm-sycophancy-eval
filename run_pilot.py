@@ -17,6 +17,7 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parent
 QUESTIONS_PATH = ROOT / "data" / "pilot_questions.csv"
 LOG_PATH = ROOT / "runs" / "pilot.jsonl"
+FINAL_ANSWER_LOG_PATH = ROOT / "runs" / "pilot-final-answer.jsonl"
 OLLAMA_URL = "http://127.0.0.1:11434"
 MODEL = "qwen3:4b"
 MODEL_DIGEST = "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7"
@@ -29,6 +30,12 @@ CHAT_SETTINGS = {
     "think": False,
     "options": {"temperature": 0},
     "format": {"type": "string", "enum": ["A", "B"]},
+}
+FINAL_ANSWER_SETTINGS = {
+    "model": MODEL,
+    "stream": False,
+    "think": True,
+    "options": {"temperature": 0},
 }
 
 
@@ -70,12 +77,15 @@ def build_schedule():
     return [dict(call, sequence=index) for index, call in enumerate(first + remaining, start=1)]
 
 
-def print_preview(schedule):
+def print_preview(schedule, final_answer=False):
     print("# Pilot prompt preview\n")
     print("Each block below is the only user message in a fresh local request. "
           "The headings and answer keys are for review.\n")
-    print(f"Model `{MODEL}`. Answer format is JSON `\"A\"` or `\"B\"`. Temperature is 0. "
-          f"Thinking is disabled. Shuffle seed is `{ORDER_SEED}`.\n")
+    print(f"Model `{MODEL}`. Temperature is 0. Shuffle seed is `{ORDER_SEED}`.")
+    if final_answer:
+        print("The response is unconstrained. Only `A` or `B` in the final answer field is scored.\n")
+    else:
+        print('Answer format is JSON `"A"` or `"B"`. Thinking is disabled.\n')
     for call in schedule:
         number = call["sequence"]
         if number in (1, 7):
@@ -104,13 +114,13 @@ def ollama_identity():
     raise ValueError(f"The reviewed build of {MODEL} ({MODEL_DIGEST[:12]}) is unavailable.")
 
 
-def score_reply(reply, expected):
+def score_reply(reply, expected, *, json_answer=True):
     message = reply.get("message")
     raw = message.get("content") if isinstance(message, dict) else None
     choice = None
     if reply.get("done") is True and isinstance(raw, str):
         try:
-            decoded = json.loads(raw)
+            decoded = json.loads(raw) if json_answer else raw.strip()
             if decoded in ("A", "B"):
                 choice = decoded
         except json.JSONDecodeError:
@@ -131,7 +141,7 @@ def load_progress(log, fingerprint, call_ids):
         try:
             record = json.loads(line)
         except json.JSONDecodeError as error:
-            raise ValueError(f"Malformed JSON in {LOG_PATH} at line {line_number}.") from error
+            raise ValueError(f"Malformed JSON in {log.name} at line {line_number}.") from error
         if record["fingerprint"] != fingerprint or record["id"] not in call_ids:
             raise ValueError("Existing results were recorded with a different pilot configuration.")
         attempts[record["id"]] += 1
@@ -140,8 +150,8 @@ def load_progress(log, fingerprint, call_ids):
     return completed, attempts
 
 
-def record_call(log, call, metadata, prior_attempts):
-    payload = dict(CHAT_SETTINGS, messages=[{"role": "user", "content": call["prompt"]}])
+def record_call(log, call, metadata, prior_attempts, settings):
+    payload = dict(settings, messages=[{"role": "user", "content": call["prompt"]}])
     for attempt in range(prior_attempts + 1, prior_attempts + MAX_ATTEMPTS + 1):
         started_at = datetime.now(timezone.utc).isoformat()
         start = time.perf_counter()
@@ -150,7 +160,7 @@ def record_call(log, call, metadata, prior_attempts):
         except (OSError, ValueError) as error:
             result = {"status": "request-error", "error": str(error)}
         else:
-            result = score_reply(reply, call["expected_letter"])
+            result = score_reply(reply, call["expected_letter"], json_answer="format" in settings)
         record = dict(call, **metadata, **result, attempt=attempt, started_at=started_at,
                       elapsed_seconds=round(time.perf_counter() - start, 3))
         log.write(json.dumps(record, ensure_ascii=False) + "\n")
@@ -159,16 +169,18 @@ def record_call(log, call, metadata, prior_attempts):
         if result["status"] != "request-error":
             print(f'{call["sequence"]:02d} {call["id"]}: {result["status"]}', flush=True)
             return
-    raise RuntimeError(f'{call["id"]} failed {MAX_ATTEMPTS} requests. Details are in {LOG_PATH}.')
+    raise RuntimeError(f'{call["id"]} failed {MAX_ATTEMPTS} requests. Details are in {log.name}.')
 
 
-def run_phase(schedule, phase):
+def run_phase(schedule, phase, final_answer=False):
     identity = ollama_identity()
-    config = dict(identity, settings=CHAT_SETTINGS, schedule=schedule)
+    settings = FINAL_ANSWER_SETTINGS if final_answer else CHAT_SETTINGS
+    log_path = FINAL_ANSWER_LOG_PATH if final_answer else LOG_PATH
+    config = dict(identity, settings=settings, schedule=schedule)
     fingerprint = hashlib.sha256(json.dumps(config, sort_keys=True).encode("utf-8")).hexdigest()
     metadata = dict(identity, fingerprint=fingerprint, model=MODEL)
-    LOG_PATH.parent.mkdir(exist_ok=True)
-    with LOG_PATH.open("a+", encoding="utf-8") as log:
+    log_path.parent.mkdir(exist_ok=True)
+    with log_path.open("a+", encoding="utf-8") as log:
         fcntl.flock(log, fcntl.LOCK_EX | fcntl.LOCK_NB)
         completed, attempts = load_progress(log, fingerprint, {call["id"] for call in schedule})
         first, remaining = schedule[:6], schedule[6:]
@@ -176,20 +188,22 @@ def run_phase(schedule, phase):
             raise ValueError("Complete and review the first six calls before running the remaining phase.")
         for call in first if phase == "first" else remaining:
             if call["id"] not in completed:
-                record_call(log, call, metadata, attempts[call["id"]])
-    print(f"Results saved to {LOG_PATH}")
+                record_call(log, call, metadata, attempts[call["id"]], settings)
+    print(f"Results saved to {log_path}")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("phase", choices=("preview", "first", "remaining"))
+    parser.add_argument("--final-answer", action="store_true",
+                        help="Use unconstrained generation and score only the final answer field.")
     args = parser.parse_args()
     try:
         schedule = build_schedule()
         if args.phase == "preview":
-            print_preview(schedule)
+            print_preview(schedule, args.final_answer)
         else:
-            run_phase(schedule, args.phase)
+            run_phase(schedule, args.phase, args.final_answer)
     except (OSError, ValueError, RuntimeError, KeyError) as error:
         parser.exit(1, f"Pilot error: {error}\n")
 
