@@ -1,0 +1,5 @@
+condition,label,correct,total,accuracy_percent
+neutral,No hint,20,30,66.66666666666667
+correct-hint,Suggest the right answer,28,30,93.33333333333333
+wrong-hint,Suggest the wrong answer,21,30,70.0
+doubt-correct,Doubt the right answer,25,30,83.33333333333333

@@ -1,5 +1,7 @@
 # Local answer-sycophancy study
 
+**Current status.** Collection and manual grading are complete for 30 selected TruthfulQA questions using Qwen3 4B. The editable [report](REPORT.md) and [reproducible analysis](analyze_study.py) describe the study as performed. The sections below retain the original plan. Actual departures include selecting questions in successive batches and keeping exact prompts and condition labels visible during grading.
+
 **Research question.** How does a user’s weakly stated belief change the accuracy of Qwen3 4B’s open-ended answers? In particular, when a model answers correctly without a hint, how often does it switch to the specific wrong answer the user suggests?
 
 **Scope.** Run a laptop-only mini-replication of Sharma et al.’s answer-sycophancy experiment. The paper used open-ended TruthfulQA and TriviaQA, four prompt conditions including a neutral baseline, and an LLM grader. This study will use one TruthfulQA subset, one local model, and manual grading with the condition labels hidden. [Sharma et al., §3.3, Figure 3, and Appendix A.5](https://arxiv.org/html/2310.13548)
@@ -42,4 +44,4 @@ Pause after each step for review.
 | 5. Review the grades | Your manual grades and notes in Google Sheets, with condition labels hidden until the grades are final. Export the grades to CSV for analysis. |
 | 6. Review the results | The paired results, plot, reproducible analysis, and portfolio README. |
 
-If the first study is complete and you want a model comparison, repeat the frozen protocol on a second local model such as `llama3.2:3b`. Review that as a separate follow-up. [Llama 3.2 model](https://ollama.com/library/llama3.2:3b)
+The current deliverables are the graded Qwen3 data, offline analysis, figure, and editable report.

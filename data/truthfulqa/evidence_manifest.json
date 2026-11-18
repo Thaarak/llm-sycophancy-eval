@@ -1,0 +1,122 @@
+{
+  "document": "REPORT.md",
+  "status": "Editable draft awaiting author review",
+  "analysis_intent": "Exploratory and descriptive",
+  "sources": [
+    {
+      "id": "E01",
+      "title": "Towards Understanding Sycophancy in Language Models",
+      "authors": "Mrinank Sharma et al.",
+      "year": 2023,
+      "url": "https://arxiv.org/html/2310.13548v4",
+      "locator": "Section 3.3 and Appendix A.5",
+      "agent_checked": "Metadata and Section 3.3 opened during report drafting.",
+      "human_verification": "Pending author review of this draft."
+    },
+    {
+      "id": "E02",
+      "title": "TruthfulQA: Measuring How Models Mimic Human Falsehoods",
+      "authors": [
+        "Stephanie Lin",
+        "Jacob Hilton",
+        "Owain Evans"
+      ],
+      "url": "https://arxiv.org/abs/2109.07958",
+      "agent_checked": "Title, authors, and benchmark description opened during report drafting.",
+      "human_verification": "Pending author review of this draft."
+    },
+    {
+      "id": "E03",
+      "title": "TruthfulQA dataset revision",
+      "revision": "f6be04e52bbcb41d4d20daee6358231d4a5015d2",
+      "url": "https://github.com/sylinrl/TruthfulQA/blob/f6be04e52bbcb41d4d20daee6358231d4a5015d2/TruthfulQA.csv",
+      "local_files": "data/truthfulqa/batch*-questions.json",
+      "locator": "Per-question dataset_row and dataset_question_sha256 fields"
+    },
+    {
+      "id": "E04",
+      "title": "Frozen prompts and received final-answer records",
+      "local_files": [
+        "data/truthfulqa/batch*-roster.json",
+        "runs/truthfulqa-batch*.jsonl",
+        "data/truthfulqa/study_settings.json"
+      ],
+      "agent_checked": "120 prompt IDs joined one-to-one to received records, with exact final-answer matching."
+    },
+    {
+      "id": "E05",
+      "title": "User manual grading snapshot",
+      "local_files": [
+        "data/truthfulqa/grades.csv",
+        "data/truthfulqa/grading_rubric.json",
+        "data/truthfulqa/grading_snapshot.json"
+      ],
+      "grades_sha256": "ae6e360764f9190af71b5e0d741ac99981017a8e3c5ecd17b1c10e6a32e33e2b",
+      "human_verification": "User manually assigned and revised the recorded labels. Complete report review remains pending."
+    },
+    {
+      "id": "E06",
+      "title": "Reproducible descriptive analysis",
+      "local_files": [
+        "analyze_study.py",
+        "results/truthfulqa/summary.json",
+        "results/truthfulqa/paired_results.csv",
+        "results/truthfulqa/accuracy_by_condition.csv",
+        "results/truthfulqa/accuracy_by_condition.png"
+      ],
+      "agent_checked": "Generated locally from E04 and E05.",
+      "human_verification": "Pending author review of the interpretation and displays."
+    },
+    {
+      "id": "E07",
+      "title": "Historical pilot records",
+      "local_files": [
+        "protocol.md",
+        "runs/pilot.jsonl",
+        "runs/pilot-final-answer.jsonl",
+        "results/pilot-final-answer.csv",
+        "runs/open-ended-practice.jsonl"
+      ],
+      "scope": "Excluded from the main-study accuracy and paired comparisons."
+    },
+    {
+      "id": "E08",
+      "title": "Scientific Agent Skills: A Library of Procedural Knowledge for Research Agents",
+      "authors": [
+        "Timothy Kassis",
+        "Vinayak Agarwal",
+        "Yuhuan He",
+        "Darshil Patel",
+        "Aubrey M. Brueckner"
+      ],
+      "year": 2026,
+      "url": "https://arxiv.org/abs/2609.00065",
+      "agent_checked": "Title, authors, and publication metadata opened during report drafting.",
+      "scope": "Reporting-workflow attribution."
+    }
+  ],
+  "claim_groups": {
+    "research_background": [
+      "E01",
+      "E02"
+    ],
+    "questions_and_procedure": [
+      "E03",
+      "E04"
+    ],
+    "manual_grading": [
+      "E05"
+    ],
+    "numeric_results_and_pairs": [
+      "E04",
+      "E05",
+      "E06"
+    ],
+    "historical_pilot": [
+      "E07"
+    ],
+    "assistance_disclosure": [
+      "E08"
+    ]
+  }
+}
