@@ -1,8 +1,8 @@
 # Local answer-sycophancy study
 
-An exploratory Qwen3 4B evaluation of how weak user hints affect factual answers. The completed main study contains 30 TruthfulQA questions, four prompt conditions, and 120 manually graded final replies.
+I built this project to learn how to design and evaluate an AI safety experiment. I investigated how weak user hints affect Qwen3 4B’s factual answers using 30 selected TruthfulQA questions, four prompt conditions, and 120 final replies that I manually graded.
 
-Read and edit the [draft report](REPORT.md). The [analysis summary](results/truthfulqa/summary.json) records the results and grading-file checksum.
+I adapted the answer-sycophancy experiment from Sharma et al. for a local model and manual grading. My [report](REPORT.md) explains the methods, results, and limitations. My [analysis summary](results/truthfulqa/summary.json) records the results and grading-file checksum.
 
 | Condition | Correct | Accuracy |
 |---|---:|---:|
@@ -11,20 +11,20 @@ Read and edit the [draft report](REPORT.md). The [analysis summary](results/trut
 | Incorrect suggestion | 21/30 | 70.0% |
 | Doubt the correct answer | 25/30 | 83.3% |
 
-The current manual grades give 94/120 correct replies overall (78.3%). Incorrect suggestions produced one correct-to-planned-misconception pair among 20 initially correct questions. The report explains the additional errors, improvements, and limitations.
+I graded 94/120 replies as correct overall (78.3%). Among the 20 questions Qwen3 answered correctly without a hint, I found one where an incorrect suggestion led it to give the planned misconception. Accuracy under incorrect suggestions increased slightly overall, from 66.7% to 70.0%. I treat these as exploratory findings for one model and a selected question set.
 
 ![Accuracy by condition, with the correct count out of 30 shown on each bar.](results/truthfulqa/accuracy_by_condition.png)
 
 ## Reproduce the saved results
 
-The numeric analysis uses the Python standard library and works without Ollama or network access.
+I included an offline analysis script that uses the Python standard library. You can reproduce my numeric results without Ollama or network access.
 
 ```sh
 python3 analyze_study.py --no-plot
 python3 -m unittest -v
 ```
 
-To regenerate the figure in an isolated environment, use the tested Python 3.12 workflow.
+I used the following Python 3.12 workflow to regenerate the figure in an isolated environment.
 
 ```sh
 python3 -m venv .venv
@@ -32,17 +32,17 @@ python3 -m venv .venv
 .venv/bin/python analyze_study.py
 ```
 
-The release was checked with Python 3.12.14 and Matplotlib 3.11.2. Numeric results are in [accuracy_by_condition.csv](results/truthfulqa/accuracy_by_condition.csv), [paired_results.csv](results/truthfulqa/paired_results.csv), and [summary.json](results/truthfulqa/summary.json).
+My project was checked with Python 3.12.14 and Matplotlib 3.11.2. I saved the numeric results in [accuracy_by_condition.csv](results/truthfulqa/accuracy_by_condition.csv), [paired_results.csv](results/truthfulqa/paired_results.csv), and [summary.json](results/truthfulqa/summary.json).
 
 ## Inspect or resume local collection
 
-Previewing prompts is offline. This prints the frozen prompts for the first batch.
+I saved the exact prompts used for collection. You can preview the first batch offline with this command.
 
 ```sh
 python3 run_open_ended.py truthfulqa-batch1 --preview
 ```
 
-The recorded main batches are `truthfulqa-batch1`, `truthfulqa-batch2`, `truthfulqa-batch3`, `truthfulqa-batch4`, and `truthfulqa-batch6`. They cover question numbers 1–24 and 31–36. Candidates 25–30 were not run, so there is no batch 5 in the collected data.
+I collected the main study in batches `truthfulqa-batch1`, `truthfulqa-batch2`, `truthfulqa-batch3`, `truthfulqa-batch4`, and `truthfulqa-batch6`. These cover question numbers 1–24 and 31–36. I did not run candidates 25–30, so there is no batch 5 in the collected data.
 
 To resume a batch, start Ollama with the reviewed `qwen3:4b` build installed, then run the same command without `--preview`.
 
@@ -50,26 +50,26 @@ To resume a batch, start Ollama with the reviewed `qwen3:4b` build installed, th
 python3 run_open_ended.py truthfulqa-batch1
 ```
 
-The collector checks the recorded model digest and Ollama version, preserves completed receipts, and resumes missing calls. Each request has a single fresh user message, temperature 0, thinking enabled, and unconstrained output. Transport failures remain in the append-only log. Received incomplete replies remain terminal records and are excluded from accuracy calculations and matched comparisons. Analysis rejects duplicate IDs, missing grades, and grading text that differs from its source receipt.
+I used a collector that checks the recorded model digest and Ollama version, preserves completed receipts, and resumes missing calls. I sent each request as a single fresh user message, with temperature 0, thinking enabled, and unconstrained output. The collector keeps transport failures in an append-only log and retains incomplete replies as terminal records. My analysis excludes incomplete replies from accuracy calculations and matched comparisons, and rejects duplicate IDs, missing grades, and grading text that differs from its source receipt.
 
-A normally finished empty answer is retained as a noncorrect reply when graded `ambiguous or no answer`.
+In my analysis, a normally finished empty answer is retained as a noncorrect reply when graded `ambiguous or no answer`.
 
-All shipped main-study receipts are already complete. Preserving them keeps the original evidence available for inspection. A fresh collection would need its own output files.
+I included the complete main-study receipts so others can inspect the original evidence. A fresh collection would need its own output files.
 
 ## Data and provenance
 
-- [Question manifests and prompt rosters](data/truthfulqa/) pin the dataset revision, source rows, accepted references, misconceptions, and reviewed prompts.
-- [grades.csv](data/truthfulqa/grades.csv) contains the user’s revised grades and original spreadsheet row numbers.
-- [grading_snapshot.json](data/truthfulqa/grading_snapshot.json) records the export date, checksum, grading visibility, and correction history.
-- [Run receipts](runs/) retain final-answer text, completion status, elapsed time, model digest, and Ollama version.
-- [Evidence manifest](data/truthfulqa/evidence_manifest.json) links the draft’s methods and results to the saved sources. Author review of the draft remains pending.
+- My [question manifests and prompt rosters](data/truthfulqa/) pin the dataset revision, source rows, accepted references, misconceptions, and reviewed prompts.
+- My revised manual grades and original spreadsheet row numbers are in [grades.csv](data/truthfulqa/grades.csv).
+- I recorded the export date, checksum, grading visibility, and correction history in [grading_snapshot.json](data/truthfulqa/grading_snapshot.json).
+- I retained final-answer text, completion status, elapsed time, model digest, and Ollama version in the [run receipts](runs/).
+- I included an [evidence manifest](data/truthfulqa/evidence_manifest.json) linking the report’s methods and results to the saved sources.
 
-TruthfulQA’s upstream Apache License 2.0 and the subset’s adaptation details are included in [the data attribution](data/truthfulqa/ATTRIBUTION.md).
+I included TruthfulQA’s upstream Apache License 2.0 and the subset’s adaptation details in [the data attribution](data/truthfulqa/ATTRIBUTION.md).
 
-The main data are separate from the six-question multiple-choice pilot and the later 30-question open-ended practice collection. Historical pilot commands remain documented in [protocol.md](protocol.md). Practice prompts are archived in [practice-roster.json](data/practice-roster.json) and can be previewed with the `first`, `remaining`, `harder`, `third`, `fourth`, and `fifth` phases of `run_open_ended.py`.
+I excluded the six-question multiple-choice pilot and the later 30-question open-ended practice collection from my main results. I kept the historical pilot commands in [protocol.md](protocol.md) and archived the practice prompts in [practice-roster.json](data/practice-roster.json). You can preview those prompts with the `first`, `remaining`, `harder`, `third`, `fourth`, and `fifth` phases of `run_open_ended.py`.
 
-## Editing the report
+## My role and assistance
 
-Edit [REPORT.md](REPORT.md) directly, locally or through GitHub’s file editor. The report is a human-editable draft. Its result table and claims should stay consistent with the generated analysis if grades change.
+I reviewed and approved the question batches and manually graded the replies. I used Codex to help draft questions, implement and execute the collection, analyze the results, discuss selected grades, and draft the write-up. I have reviewed the report.
 
-The user approved question batches and manually graded replies. Codex assisted with implementation, execution, analysis, and drafting. The reporting workflow used the scientific-writing skill documented in Kassis et al. (2026), [Scientific Agent Skills](https://arxiv.org/abs/2609.00065). The report also cites the original sycophancy and TruthfulQA papers.
+For the reporting workflow, Codex used the scientific-writing skill documented in Kassis et al. (2026), [Scientific Agent Skills](https://arxiv.org/abs/2609.00065). I cite the original sycophancy and TruthfulQA papers in my report.
