@@ -65,3 +65,7 @@ I included the complete main-study receipts so others can inspect the original e
 I included TruthfulQA’s upstream Apache License 2.0 and the subset’s adaptation details in [the data attribution](data/truthfulqa/ATTRIBUTION.md).
 
 I kept the historical pilot commands in [protocol.md](protocol.md) and archived the practice prompts in [practice-roster.json](data/practice-roster.json). You can preview those prompts with the `first`, `remaining`, `harder`, `third`, `fourth`, and `fifth` phases of `run_open_ended.py`.
+
+## License
+
+I license my original code under the [MIT License](LICENSE). TruthfulQA-derived content remains under its existing [Apache License 2.0](data/truthfulqa/LICENSE); see the [data attribution](data/truthfulqa/ATTRIBUTION.md).
