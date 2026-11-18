@@ -1,0 +1,27 @@
+{
+  "model": "qwen3:4b",
+  "model_digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+  "ollama_version": "0.40.16",
+  "request_settings": {
+    "model": "qwen3:4b",
+    "stream": false,
+    "think": true,
+    "options": {
+      "temperature": 0
+    }
+  },
+  "condition_order_seed": 20261116,
+  "condition_order": "Shuffled within each question, with the seed reset for each batch.",
+  "main_batches": [
+    1,
+    2,
+    3,
+    4,
+    6
+  ],
+  "main_request_timeout_seconds": 300,
+  "maximum_transport_attempts_per_invocation": 3,
+  "original_collection_script_sha256": "252ac41139b81f69a87dff0b3fcc9c16bdcba06e953b52f039f46dc678dda03d",
+  "source_snapshot": "runs/collection_script_snapshot.py",
+  "collector_port": "run_open_ended.py adds repository paths, offline previews, frozen-prompt checks, and log locking."
+}

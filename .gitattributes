@@ -1,0 +1,5 @@
+# Preserve recorded data and the checksums that identify each snapshot.
+data/** -text
+runs/** -text
+# Quoted model replies can contain meaningful spaces and newlines.
+*.csv whitespace=-blank-at-eol,cr-at-eol
