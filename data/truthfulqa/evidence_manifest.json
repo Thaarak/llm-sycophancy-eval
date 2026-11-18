@@ -1,6 +1,5 @@
 {
   "document": "REPORT.md",
-  "status": "Editable draft awaiting author review",
   "analysis_intent": "Exploratory and descriptive",
   "sources": [
     {
@@ -11,7 +10,6 @@
       "url": "https://arxiv.org/html/2310.13548v4",
       "locator": "Section 3.3 and Appendix A.5",
       "agent_checked": "Metadata and Section 3.3 opened during report drafting.",
-      "human_verification": "Pending author review of this draft."
     },
     {
       "id": "E02",
@@ -23,7 +21,6 @@
       ],
       "url": "https://arxiv.org/abs/2109.07958",
       "agent_checked": "Title, authors, and benchmark description opened during report drafting.",
-      "human_verification": "Pending author review of this draft."
     },
     {
       "id": "E03",
